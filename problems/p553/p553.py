@@ -9,6 +9,7 @@ parser.add_option('-K', '--knumber')
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 @contextmanager
 def catchtime(fn) -> float:
     print(f"{fn}: start")
@@ -16,7 +17,9 @@ def catchtime(fn) -> float:
     yield lambda: perf_counter() - start
     print(f"{fn}: finished in {perf_counter() - start:.3f} seconds")
 
+
 MOD = 1_000_000_007
+
 
 def generate_i_choose_j(N):
     res = [[0 for j in range(N+1)] for i in range(N+1)]
@@ -28,6 +31,7 @@ def generate_i_choose_j(N):
                 res[i][j] = (res[i-1][j-1] + res[i-1][j]) % MOD
     return res
 
+
 def generate_r_count(N):
     res = [0 for i in range(N+1)]
     for i in range(1, N+1):
@@ -36,6 +40,7 @@ def generate_r_count(N):
         term3 = (term1 * term2) % MOD
         res[i] = (term3 + 1) % MOD
     return res
+
 
 def solution(N, K):
     print("Doing for N={}, K={}".format(N, K))
@@ -83,12 +88,15 @@ def solution(N, K):
                         term1 = (i_choose_j[n][i] * cbar[i][k]) % MOD
                         c[n][k] = (c[n][k] + term1) % MOD
 
+                cbar[n][k] %= MOD
+                c[n][k] %= MOD
                 row_total = (row_total + cbar[n][k]) % MOD
                 # print(f"n={n}, k={k}, cbar[{n}][{k}]={cbar[n][k]}, c[{n}][{k}]={c[n][k]}")
             # handle cbar(n, 1) separately
             num_graphs_below_n_labels = sum([(i_choose_j[n][i] * rbar[i]) % MOD for i in range(n)])
             expected_rbar = (r_count[n] - num_graphs_below_n_labels) % MOD
             cbar[n][1] = expected_rbar - row_total
+            cbar[n][1] %= MOD
             rbar[n] = expected_rbar
 
             # handle c(n, 1) separately
@@ -99,14 +107,16 @@ def solution(N, K):
             # print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
             # print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}, rbar[{n}]={rbar[n]}\n")
 
-    # pprint.pprint(c, width=50)
-    # pprint.pprint(cbar, width=50)
+    pprint.pprint(c, width=200)
+    pprint.pprint(cbar, width=200)
     # pprint.pprint(rbar, width=50)
+    # pprint.pprint(r_count, width=50)
     return c[N][K]
 
 
 def main(N, K):
     print(solution(N, K))
+
 
 if __name__ == "__main__":
     options, args = parser.parse_args()
