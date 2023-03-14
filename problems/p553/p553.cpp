@@ -4,11 +4,11 @@
 using namespace std;
 using namespace std::chrono;
 
-// const long N = pow(10, 4);
-// const long K = 10;
-
-const long N = 100;
+const long N = pow(10, 4);
 const long K = 10;
+
+// const long N = 100;
+// const long K = 10;
 
 const long MOD = 1000000007;
 
@@ -124,7 +124,10 @@ int main()
             {
                 c[n][k] = 1;
                 cBar[n][k] = 1;
-                cout << "n=" << n << ", k=" << k << ", breaking..." << endl;
+                if (!(n % 100))
+                {
+                    cout << "n=" << n << ", k=" << k << ", breaking..." << endl;
+                }
             }
             else if (k > n)
             {
