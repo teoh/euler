@@ -42,8 +42,6 @@ def solution(N, K):
 
     with catchtime("i_choose_j") as t:
         i_choose_j = generate_i_choose_j(N)
-    # pp.pprint(i_choose_j)
-    # print(i_choose_j[6][4])
 
     print("Generating r_count...")
     with catchtime("r_count") as t:
@@ -80,38 +78,30 @@ def solution(N, K):
                         term1 = (i_choose_j[n-1][j] * cbar[j+1][1]) % MOD
                         cbar[n][k] += (term1 * cbar[n-j-1][k-1]) % MOD
 
-                    # corrected: c(n, k) = sum_i(1->n) n_choose_i * cbar(i, k)
+                    # c(n, k) = sum_i(1->n) n_choose_i * cbar(i, k)
                     for i in range(1, n+1):
                         term1 = (i_choose_j[n][i] * cbar[i][k]) % MOD
                         c[n][k] = (c[n][k] + term1) % MOD
 
-                    # update final c(n, k) = cbar(n, k) + n*c(n-1, k)
-                    # term1 = (n * c[n-1][k]) % MOD
-                    # c[n][k] = (cbar[n][k] + term1) % MOD
-
-                rbar[n] = (rbar[n] + cbar[n][k]) % MOD
-                print(f"n={n}, k={k}, cbar[{n}][{k}]={cbar[n][k]}, c[{n}][{k}]={c[n][k]}")
-            # handle cbar(n, 1) separately. needs sum_j(2->n) cbar(n, j)
-            # print(f"n={n}, k={1}")
-            # print(f"n={n}, k={1}, r_count[{n}]={r_count[n]}, r_count[n-1]={r_count[n-1]}, row_total={row_total}")
-            # cbar[n][1] = r_count[n] - n * r_count[n-1] - row_total
-            row_total = (r_count[n] - sum([(i_choose_j[n][i] * rbar[i]) % MOD for i in range(n)])) % MOD
-            cbar[n][1] = row_total - rbar[n]
-            rbar[n] = row_total
+                row_total = (row_total + cbar[n][k]) % MOD
+                # print(f"n={n}, k={k}, cbar[{n}][{k}]={cbar[n][k]}, c[{n}][{k}]={c[n][k]}")
+            # handle cbar(n, 1) separately
+            num_graphs_below_n_labels = sum([(i_choose_j[n][i] * rbar[i]) % MOD for i in range(n)])
+            expected_rbar = (r_count[n] - num_graphs_below_n_labels) % MOD
+            cbar[n][1] = expected_rbar - row_total
+            rbar[n] = expected_rbar
 
             # handle c(n, 1) separately
-            # term1 = (n * c[n-1][1]) % MOD
-            # c[n][1] = (cbar[n][1] + term1) % MOD
             for i in range(1, n+1):
                 term1 = (i_choose_j[n][i] * cbar[i][1]) % MOD
                 c[n][1] = (c[n][1] + term1) % MOD
 
-            print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
-            print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}, rbar[{n}]={rbar[n]}\n")
+            # print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
+            # print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}, rbar[{n}]={rbar[n]}\n")
 
-    pprint.pprint(c, width=30)
-    pprint.pprint(cbar, width=30)
-    pprint.pprint(rbar, width=30)
+    # pprint.pprint(c, width=50)
+    # pprint.pprint(cbar, width=50)
+    # pprint.pprint(rbar, width=50)
     return c[N][K]
 
 
