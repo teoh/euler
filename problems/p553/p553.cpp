@@ -105,7 +105,7 @@ int main()
     // create rBar array
     vector<long> rBar = vector<long>(N + 1, 0);
     // create c and cBar arrays
-    vector<vector<long>> c(N + 1, vector<long>(N + 1, 0));
+    // vector<vector<long>> c(N + 1, vector<long>(N + 1, 0));
     vector<vector<long>> cBar(N + 1, vector<long>(N + 1, 0));
     cout << "done" << endl;
 
@@ -122,7 +122,7 @@ int main()
             // own connected component
             if (n == k)
             {
-                c[n][k] = 1;
+                // c[n][k] = 1;
                 cBar[n][k] = 1;
                 if (!(n % 100))
                 {
@@ -143,15 +143,15 @@ int main()
                     cBar[n][k] %= MOD;
                 }
                 // get c[n][k]
-                for (long i = 1; i <= n; i++)
-                {
-                    long term1 = (choose[n][i] * cBar[i][k]) % MOD;
-                    c[n][k] += term1;
-                    c[n][k] %= MOD;
-                }
+                // for (long i = 1; i <= n; i++)
+                // {
+                //     long term1 = (choose[n][i] * cBar[i][k]) % MOD;
+                //     c[n][k] += term1;
+                //     c[n][k] %= MOD;
+                // }
             }
             cBar[n][k] = posMod(cBar[n][k]);
-            c[n][k] = posMod(c[n][k]);
+            // c[n][k] = posMod(c[n][k]);
             rowTotal += cBar[n][k];
             rowTotal %= MOD;
         }
@@ -167,13 +167,13 @@ int main()
         cBar[n][1] = posMod(expectedRBar - rowTotal);
         rBar[n] = expectedRBar;
 
-        // handle c[n][1] separately
-        for (long i = 1; i <= n; i++)
-        {
-            long term1 = (choose[n][i] * cBar[i][1]) % MOD;
-            c[n][1] += term1;
-            c[n][1] %= MOD;
-        }
+        // // handle c[n][1] separately
+        // for (long i = 1; i <= n; i++)
+        // {
+        //     long term1 = (choose[n][i] * cBar[i][1]) % MOD;
+        //     c[n][1] += term1;
+        //     c[n][1] %= MOD;
+        // }
     }
 
     cout << "done" << endl;
@@ -186,7 +186,13 @@ int main()
     auto duration = duration_cast<milliseconds>(stop - start);
     cout << duration.count() << endl;
 
-    long solution = c[N][K];
+    // long solution = c[N][K];
+    long solution = 0;
+    for (int i = 1; i <= N; i++){
+        long term1 = (choose[N][i] * cBar[i][K]) % MOD;
+        solution += term1;
+        solution %= MOD;
+    }
     if (solution < 0)
     {
         solution += MOD;
