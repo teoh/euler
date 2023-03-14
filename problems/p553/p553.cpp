@@ -93,13 +93,13 @@ int main()
     cout << "Getting choose array..." << endl;
     vector<vector<long>> choose = getChooseArray();
     cout << "done" << endl;
-    pprint2d(choose);
+    // pprint2d(choose);
 
     // generate rCount array:
     cout << "Getting rCount array..." << endl;
     vector<long> rCount = getRCountArray();
     cout << "done" << endl;
-    pprint1d(rCount);
+    // pprint1d(rCount);
 
     cout << "Getting rBar, c, cbar arrays..." << endl;
     // create rBar array
