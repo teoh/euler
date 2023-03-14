@@ -59,18 +59,20 @@ def solution(N, K):
         # init c-bar
         cbar = [[0 for j in range(N+1)] for i in range(N+1)]
 
+        # init r-bar
+        rbar = [0 for i in range(N+1)]
+
+        # for ever n, number of labels
         for n in range(1, N+1):
             row_total = 0
+            # for every k, number of connected components
             for k in range(2, N+1):
                 # base cases:
                 if n == k:
                     cbar[n][k] = 1
                     c[n][k] = 1
-                    row_total += 1
-                elif n < k:
-                    cbar[n][k] = 0
-                    c[n][k] = 0
                     print(f"n={n}, k={k}, breaking...")
+                elif k > n:
                     break
                 else:
                     # get cbar(n, k)
@@ -78,25 +80,38 @@ def solution(N, K):
                         term1 = (i_choose_j[n-1][j] * cbar[j+1][1]) % MOD
                         cbar[n][k] += (term1 * cbar[n-j-1][k-1]) % MOD
 
-                    # update final c(n, k) = cbar(n, k) + n*c(n-1, k)
-                    term1 = (n * c[n-1][k]) % MOD
-                    c[n][k] = (cbar[n][k] + term1) % MOD
+                    # corrected: c(n, k) = sum_i(1->n) n_choose_i * cbar(i, k)
+                    for i in range(1, n+1):
+                        term1 = (i_choose_j[n][i] * cbar[i][k]) % MOD
+                        c[n][k] = (c[n][k] + term1) % MOD
 
-                    row_total += cbar[n][k]
+                    # update final c(n, k) = cbar(n, k) + n*c(n-1, k)
+                    # term1 = (n * c[n-1][k]) % MOD
+                    # c[n][k] = (cbar[n][k] + term1) % MOD
+
+                rbar[n] = (rbar[n] + cbar[n][k]) % MOD
                 print(f"n={n}, k={k}, cbar[{n}][{k}]={cbar[n][k]}, c[{n}][{k}]={c[n][k]}")
             # handle cbar(n, 1) separately. needs sum_j(2->n) cbar(n, j)
             # print(f"n={n}, k={1}")
-            print(f"n={n}, k={1}, r_count[{n}]={r_count[n]}, r_count[n-1]={r_count[n-1]}, row_total={row_total}")
-            cbar[n][1] = r_count[n] - n * r_count[n-1] - row_total
+            # print(f"n={n}, k={1}, r_count[{n}]={r_count[n]}, r_count[n-1]={r_count[n-1]}, row_total={row_total}")
+            # cbar[n][1] = r_count[n] - n * r_count[n-1] - row_total
+            row_total = (r_count[n] - sum([(i_choose_j[n][i] * rbar[i]) % MOD for i in range(n)])) % MOD
+            cbar[n][1] = row_total - rbar[n]
+            rbar[n] = row_total
 
             # handle c(n, 1) separately
-            term1 = (n * c[n-1][1]) % MOD
-            c[n][1] = (cbar[n][1] + term1) % MOD
-            print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
-            print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}\n")
+            # term1 = (n * c[n-1][1]) % MOD
+            # c[n][1] = (cbar[n][1] + term1) % MOD
+            for i in range(1, n+1):
+                term1 = (i_choose_j[n][i] * cbar[i][1]) % MOD
+                c[n][1] = (c[n][1] + term1) % MOD
 
-    pp.pprint(c)
-    pp.pprint(cbar)
+            print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
+            print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}, rbar[{n}]={rbar[n]}\n")
+
+    pprint.pprint(c, width=30)
+    pprint.pprint(cbar, width=30)
+    pprint.pprint(rbar, width=30)
     return c[N][K]
 
 
