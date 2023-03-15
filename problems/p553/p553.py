@@ -107,10 +107,11 @@ def solution(N, K):
             # print(f"n={n}, k={1}, cbar[{n}][{1}]={cbar[n][1]}, c[{n}][{1}]={c[n][1]}")
             # print(f"cbar[{n}][*]={cbar[n]}, c[{n}][*]={c[n]}, rbar[{n}]={rbar[n]}\n")
 
-    pprint.pprint(c, width=200)
+    # pprint.pprint(c, width=200)
     pprint.pprint(cbar, width=200)
-    # pprint.pprint(rbar, width=50)
-    # pprint.pprint(r_count, width=50)
+    pprint.pprint(rbar, width=50)
+    pprint.pprint([sum(row) % MOD for row in cbar])
+    pprint.pprint(r_count, width=50)
     return c[N][K]
 
 
