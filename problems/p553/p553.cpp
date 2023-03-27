@@ -6,9 +6,11 @@ using namespace std::chrono;
 
 const long N = pow(10, 4);
 const long K = 10;
-
 // const long N = 100;
 // const long K = 10;
+
+// const long N = 10;
+// const long K = 2;
 
 const long MOD = 1000000007;
 
@@ -85,6 +87,23 @@ vector<long> getRCountArray()
     return rCount;
 }
 
+vector<long> getRBarArray(vector<long> rCount, vector<vector<long>> choose)
+{
+    vector<long> rBar = vector<long>(N + 1, 0);
+    rBar[1] = 1;
+    for (int n = 2; n <= N; n++)
+    {
+        rBar[n] += rCount[n];
+        for (int i = 1; i < n; i++)
+        {
+            rBar[n] -= (choose[n][i] * rBar[i]) % MOD;
+            rBar[n] = posMod(rBar[n]);
+            rBar[n] %= MOD;
+        }
+    }
+    return rBar;
+}
+
 int main()
 {
     auto start = high_resolution_clock::now();
@@ -101,21 +120,22 @@ int main()
     cout << "done" << endl;
     // pprint1d(rCount);
 
-    cout << "Getting rBar, c, cbar arrays..." << endl;
-    // create rBar array
-    vector<long> rBar = vector<long>(N + 1, 0);
-    // create c and cBar arrays
-    // vector<vector<long>> c(N + 1, vector<long>(N + 1, 0));
+    // create rBar and cBar arrays
+    cout << "Getting rBar, cbar arrays..." << endl;
+    vector<long> rBar = getRBarArray(rCount, choose);
     vector<vector<long>> cBar(N + 1, vector<long>(N + 1, 0));
     cout << "done" << endl;
 
-    cout << "Filling the c and cBar arrays..." << endl;
+    cout << "Filling the cBar array..." << endl;
     // n is the number of labels we're computing on
     for (long n = 1; n <= N; n++)
     {
-        long rowTotal = 0;
+        if (!(n % 100))
+        {
+            cout << "n=" << n << endl;
+        }
         // k is the number of connected components we're computing on
-        for (long k = 2; k <= N; k++)
+        for (long k = 2; k <= K; k++)
         {
             // if n and k are equal, there is only one possible graph,
             // and that's when each label is its
@@ -128,9 +148,6 @@ int main()
                 {
                     cout << "n=" << n << ", k=" << k << ", breaking..." << endl;
                 }
-            }
-            else if (k > n)
-            {
                 break;
             }
             else
@@ -142,53 +159,29 @@ int main()
                     cBar[n][k] += (term1 * cBar[n - j - 1][k - 1]) % MOD;
                     cBar[n][k] %= MOD;
                 }
-                // get c[n][k]
-                // for (long i = 1; i <= n; i++)
-                // {
-                //     long term1 = (choose[n][i] * cBar[i][k]) % MOD;
-                //     c[n][k] += term1;
-                //     c[n][k] %= MOD;
-                // }
             }
             cBar[n][k] = posMod(cBar[n][k]);
-            // c[n][k] = posMod(c[n][k]);
-            rowTotal += cBar[n][k];
-            rowTotal %= MOD;
         }
 
         // handle cBar[n][1] separately
-        long numGraphsBelowNLabels = 0;
-        for (long i = 0; i < n; i++)
+        cBar[n][1] = rBar[n];
+        // subtract counts of graphs with exactly n labels AND > 1 connected components
+        for (int i = 0; i < n; i++)
         {
-            numGraphsBelowNLabels += (choose[n][i] * rBar[i]) % MOD;
-            numGraphsBelowNLabels %= MOD;
+            long term1 = (choose[n - 1][i] * cBar[i + 1][1]) % MOD;
+            cBar[n][1] -= (term1 * rBar[n - i - 1]) % MOD;
+            cBar[n][1] = posMod(cBar[n][1]);
         }
-        long expectedRBar = posMod(rCount[n] - numGraphsBelowNLabels);
-        cBar[n][1] = posMod(expectedRBar - rowTotal);
-        rBar[n] = expectedRBar;
-
-        // // handle c[n][1] separately
-        // for (long i = 1; i <= n; i++)
-        // {
-        //     long term1 = (choose[n][i] * cBar[i][1]) % MOD;
-        //     c[n][1] += term1;
-        //     c[n][1] %= MOD;
-        // }
     }
-
     cout << "done" << endl;
-    // pprint2d(c);
     // pprint2d(cBar);
     // pprint1d(rBar);
     // pprint1d(rCount);
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop - start);
-    cout << duration.count() << endl;
-
     // long solution = c[N][K];
     long solution = 0;
-    for (int i = 1; i <= N; i++){
+    for (int i = 1; i <= N; i++)
+    {
         long term1 = (choose[N][i] * cBar[i][K]) % MOD;
         solution += term1;
         solution %= MOD;
@@ -199,6 +192,10 @@ int main()
     }
 
     cout << "Solution is: " << solution << endl;
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    cout << duration.count() << endl;
 
     return 0;
 }
